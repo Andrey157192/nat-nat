@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selamat Ulang Tahun Interaktif!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;700&display=swap');
+
+        :root {
+            --primary-color: #ff69b4;
+            --secondary-color: #4b0082;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 5em;
+            margin-bottom: 0.5em;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 1s ease-out forwards;
+        }
+
+        p {
+            font-size: 1.5em;
+            max-width: 80%;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 1s ease-out 0.5s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cake {
+            font-size: 5em;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            margin: 20px 0;
+        }
+
+        .cake:hover {
+            transform: scale(1.2);
+        }
+
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        .control-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            font-size: 1.5em;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .gift {
+            font-size: 3em;
+            cursor: pointer;
+            position: absolute;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            animation: firework 1s ease-out;
+        }
+
+        @keyframes firework {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--x), var(--y));
+                opacity: 0;
+            }
+        }
+
+        .letter {
+            font-size: 5em;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .letter:hover {
+            transform: scale(1.1);
+        }
+
+        .letter-content {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
+            max-width: 80%;
+            max-height: 80%;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 100;
+        }
+
+        .letter-content.open {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .letter-content h2 {
+            font-family: 'Dancing Script', cursive;
+            color: var(--primary-color);
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .letter-content p {
+            color: #333;
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .close-letter {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Selamat Ulang Tahun!</h1>
+        <p>Semoga hari spesialmu dipenuhi dengan kebahagiaan, cinta, dan keajaiban. Nikmati setiap momen dan jadikan tahun ini yang terbaik!</p>
+        <div class="cake" id="cake" role="button" tabindex="0" aria-label="Klik untuk konfeti">🎂</div>
+        <div class="letter" id="letter" role="button" tabindex="0" aria-label="Buka surat ucapan">✉️</div>
+    </div>
+    <canvas id="confetti-canvas"></canvas>
+    <div class="control-panel">
+        <button class="btn" id="music-control" aria-label="Kontrol musik">🔇</button>
+        <button class="btn" id="theme-control" aria-label="Ganti tema">🌞</button>
+        <button class="btn" id="gift-control" aria-label="Tampilkan hadiah">🎁</button>
+    </div>
+    <div class="letter-content" id="letter-content" aria-hidden="true">
+        <span class="close-letter" id="close-letter" role="button" tabindex="0" aria-label="Tutup surat">&times;</span>
+        <h2>Untuk Sahabatku Tersayang,</h2>
+        <p>
+            Selamat ulang tahun! Hari ini adalah hari yang sangat spesial, sama sepertimu yang sangat spesial bagiku. 
+            Terima kasih telah menjadi bagian penting dalam hidupku. Semoga tahun ini membawa lebih banyak kebahagiaan, 
+            kesuksesan, dan petualangan baru untukmu. Ingatlah selalu bahwa kamu adalah bintang yang bersinar terang di 
+            langit kehidupanku. Teruslah bermimpi besar dan jangan pernah ragu untuk mengejarnya!
+        </p>
+        <p>
+            Semoga semua harapan dan impianmu menjadi kenyataan. Aku akan selalu ada di sini untukmu, mendukungmu dalam 
+            setiap langkahmu. Mari kita buat tahun ini menjadi tahun terbaik yang pernah ada!
+        </p>
+        <p>Selamat ulang tahun sekali lagi! 🎉🎂🎁</p>
+    </div>
+
+    <audio id="bgMusic" src="hbd.mp3" loop></audio>
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+        const cake = document.getElementById('cake');
+        const musicControl = document.getElementById('music-control');
+        const themeControl = document.getElementById('theme-control');
+        const giftControl = document.getElementById('gift-control');
+        const container = document.querySelector('.container');
+        const letter = document.getElementById('letter');
+        const letterContent = document.getElementById('letter-content');
+        const closeLetter = document.getElementById('close-letter');
+        
+        cake.addEventListener('click', triggerConfetti);
+        cake.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                triggerConfetti();
+            }
+        });
+
+        function triggerConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+            cake.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        });
+
+        musicControl.addEventListener('click', toggleMusic);
+        musicControl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                toggleMusic();
+            }
+        });
+
+        function toggleMusic() {
+            const audioElement = document.getElementById('bgMusic');
+            if (audioElement.paused) {
+                audioElement.play();
+                musicControl.textContent = '🔊';
+                musicControl.setAttribute('aria-label', 'Matikan musik');
+            } else {
+                audioElement.pause();
+                musicControl.textContent = '🔇';
+                musicControl.setAttribute('aria-label', 'Hidupkan musik');
+            }
+        }
+
+        themeControl.addEventListener('click', toggleTheme);
+        themeControl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                toggleTheme();
+            }
+        });
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+            themeControl.textContent = document.body.classList.contains('dark-theme') ? '🌙' : '🌞';
+            themeControl.setAttribute('aria-label', document.body.classList.contains('dark-theme') ? 'Aktifkan tema terang' : 'Aktifkan tema gelap');
+        }
+
+        giftControl.addEventListener('click', createGifts);
+        giftControl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                createGifts();
+            }
+        });
+
+        function createGifts() {
+            for (let i = 0; i < 5; i++) {
+                createGift();
+            }
+        }
+
+        letter.addEventListener('click', openLetter);
+        letter.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                openLetter();
+            }
+        });
+
+        function openLetter() {
+            letterContent.classList.add('open');
+            letterContent.setAttribute('aria-hidden', 'false');
+            const audioElement = document.getElementById('bgMusic');
+            if (audioElement.paused) {
+                audioElement.play();
+                musicControl.textContent = '🔊';
+                musicControl.setAttribute('aria-label', 'Matikan musik');
+            }
+            closeLetter.focus();
+        }
+
+        closeLetter.addEventListener('click', closeLetter);
+        closeLetter.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                closeLetter();
+            }
+        });
+
+        function closeLetter() {
+            letterContent.classList.remove('open');
+            letterContent.setAttribute('aria-hidden', 'true');
+            letter.focus();
+        }
+
+        function createGift() {
+            const gift = document.createElement('div');
+            gift.classList.add('gift');
+            gift.textContent = '🎁';
+            gift.setAttribute('role', 'button');
+            gift.setAttribute('tabindex', '0');
+            gift.setAttribute('aria-label', 'Klik untuk membuka hadiah');
+            gift.style.left = Math.random() * 100 + 'vw';
+            gift.style.top = Math.random() * 100 + 'vh';
+            container.appendChild(gift);
+
+            setTimeout(() => {
+                gift.style.opacity = '1';
+                gift.style.transform = 'scale(1)';
+            }, 100);
+
+            gift.addEventListener('click', () => openGift(gift));
+            gift.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    openGift(gift);
+                }
+            });
+        }
+
+        function openGift(gift) {
+            gift.style.transform = 'scale(2)';
+            gift.style.opacity = '0';
+            createFireworks(gift.offsetLeft, gift.offsetTop);
+            setTimeout(() => gift.remove(), 500);
+        }
+
+        function createFireworks(x, y) {
+            for (let i = 0; i < 30; i++) {
+                const firework = document.createElement('div');
+                firework.classList.add('firework');
+                firework.style.left = x + 'px';
+                firework.style.top = y + 'px';
+                firework.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                firework.style.setProperty('--x', (Math.random() - 0.5) * 200 + 'px');
+                firework.style.setProperty('--y', (Math.random() - 0.5) * 200 + 'px');
+                container.appendChild(firework);
+                setTimeout(() => firework.remove(), 1000);
+            }
+        }
+
+        // Efek salju
+        setInterval(() => {
+            const snowflake = document.createElement('div');
+            snowflake.textContent = '❄';
+            snowflake.style.position = 'fixed';
+            snowflake.style.top = '-10px';
+            snowflake.style.left = Math.random() * window.innerWidth + 'px';
+            snowflake.style.fontSize = Math.random() * 20 + 10 + 'px';
+            snowflake.style.color = 'white';
+            snowflake.style.opacity = Math.random();
+            snowflake.style.transition = 'top 5s linear, left 3s ease-in-out';
+            snowflake.setAttribute('aria-hidden', 'true');
+            document.body.appendChild(snowflake);
+
+            setTimeout(() => {
+                snowflake.style.top = window.innerHeight + 'px';
+                snowflake.style.left = parseInt(snowflake.style.left) + (Math.random() * 200 - 100) + 'px';
+            }, 100);
+
+            setTimeout(() => {
+                snowflake.remove();
+            }, 5000);
+        }, 200);
+    </script>
+</body>
+</html>
+
